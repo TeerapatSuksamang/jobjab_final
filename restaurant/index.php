@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าหลัก</title>
+</head>
+<body>
+    <?php
+    
+        $page = 'index';
+        include 'nav.php';
+    
+    ?>
+
+    <div class="container-fluid">
+        <div class="row mt-5">
+            <h1 class="text-center mb-3">หมวดหมู่อาหาร</h1>
+            <?php
+                $select_type = mysqli_query($conn, "SELECT * FROM `food_type` WHERE `res_id` = '".$_SESSION['res_id']."' ");
+                if($select_type -> num_rows > 0){
+                    while($row_type = mysqli_fetch_array($select_type)){
+            ?>
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6 p-1">
+                    <div class="card mb-3">
+                        <div class="card-img-top hover-img" style="height: 200px;">
+                            <img src="../upload/<?php echo $row_type['img'] ?>" class="img">
+                        </div>
+                        <div class="card-body text-center">
+                            <h3 class="card-title"><?php echo $row_type['food_type'] ?></h3>
+                            <a href="food_manage.php?del_type=<?php echo $row_type['food_type_id'] ?>" class="btn btn-danger" onclick="return confirm('ต้องการลบ <?php echo $row_type['food_type'] ?> หรือไม่?')">ลบ</a>
+                        </div>
+                    </div>
+                </div>
+            <?php }} else { ?>
+                <p class="text-center blockquote-footer">ยังไม่มีหมวดหมู่อาหาร</p>
+            <?php } ?>
+
+            <div class="col-md-12 my-3">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_food_type">เพิ่มหมวดหมู่อาหาร</button>
+            </div>
+
+            <div class="modal fade" id="add_food_type" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">เพิ่มหมวดหมู่อาหาร</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="food_manage.php" method="post" enctype="multipart/form-data">
+                                <label for="">หมวดหมู่อาหาร</label>
+                                <input type="text" class="form-control mb-3" name="food_type" required>
+
+                                <label for="">รูปภาพ</label>
+                                <input type="file" class="form-control mb-3" name="img" required>
+                        </div>
+                        <div class="modal-footer">
+                                <button class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                                <input type="submit" class="btn btn-success" value="บันทึก" name="add_food_type">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>รายการอาหาร
+                <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#add_food">เพิ่มรายการอาหาร</button>
+            </h2>
+
+            <div class="modal fade" id="add_food" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">เพิ่มรายการอาหาร</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="food_manage.php" method="post" enctype="multipart/form-data">
+                                <label for="">รายการอาหาร</label>
+                                <input type="text" class="form-control mb-3" name="food_name" required>
+
+                                <label for="">รูปภาพ</label>
+                                <input type="file" class="form-control mb-3" name="img" required>
+
+                                <label for="">ราคา</label>
+                                <input type="number" class="form-control mb-3" name="price" required>
+
+                                <label for="">หมวดหมู่อาหาร</label>
+                                <select name="food_type" class="form-select mb-3" type="text">
+                                    <option value="อื่นๆ">เลือกหมวดหมู่อาหาร</option>
+                                    <?php
+                                        $select_type = mysqli_query($conn, "SELECT * FROM `food_type` WHERE `res_id` = '".$_SESSION['res_id']."' ");
+                                        while($row_type = mysqli_fetch_array($select_type)){
+                                    ?>
+                                        <option value="<?php echo $row_type['food_type'] ?>"><?php echo $row_type['food_type'] ?></option>
+                                    <?php } ?>
+                                </select>
+                        </div>
+                        <div class="modal-footer">
+                                <button class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                                <input type="submit" class="btn btn-success" value="บันทึก" name="add_food">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive mb-5">
+                <table class="table table-striped table-hover table-bordered text-center shadow">
+                    <tr>
+                        <th>รูปภาพ</th>
+                        <th>รายการอาหาร</th>
+                        <th>ราคา</th>
+                        <th>หมวดหมู่อาหาร</th>
+                        <th>จัดการ</th>
+                    </tr>
+
+                    <?php
+                        $select_food = mysqli_query($conn, "SELECT * FROM `food` WHERE `res_id` = '".$_SESSION['res_id']."' ");
+                        while($row_food = mysqli_fetch_array($select_food)){
+                    ?>
+                        <tr valign="middle">
+                            <td>
+                                <center>
+                                    <div class="rounded hover-img" style="width: 5rem; height: 5rem;">
+                                        <img src="../upload/<?php echo $row_food['img'] ?>" class="img">
+                                    </div>
+                                </center>
+                            </td>
+                            <td><?php echo $row_food['food_name'] ?></td>
+                            <td>
+                                <p>
+                                    <?php if($row_food['discount'] != 0){ ?>
+                                        <s class="text-secondary">฿<?php echo $row_food['price'] ?></s>
+                                        <span class="text-success">฿<?php echo $row_food['new_price'] ?></span>
+                                        <span class="text-danger">(ลด <?php echo $row_food['discount'] ?>%)</span>
+                                    <?php } else {
+                                        echo ' ฿'.$row_food['price'];
+                                    } ?>
+                                </p>
+                            </td>
+                            <td><?php echo $row_food['food_type'] ?></td>
+                            <td>
+                                <a href="food_edit.php?food_id=<?php echo $row_food['food_id'] ?>" class="btn btn-warning mb-2">แก้ไข</a>
+                                <a href="food_discount.php?food_id=<?php echo $row_food['food_id'] ?>" class="btn btn-primary mb-2">ส่วนลด</a>
+                                <a href="food_manage.php?del_food=<?php echo $row_food['food_id'] ?>" class="btn btn-danger mb-2" onclick="return confirm('ต้องการลบ <?php echo $row_food['food_name'] ?> หรือไม่?')">ลบ</a>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
